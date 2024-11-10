@@ -11,7 +11,7 @@ from ferry import get_combined_departures, download_gtfs_data
 
 # Define the path to the image
 image_path_green = '/home/tloizel/code/ferry-led/images/blue.png'
-image_path_orange = '/home/tloizel/code/ferry-led/images/red.png'
+image_path_orange = '/home/tloizel/code/ferry-led/images/orange.png'
 green_boat = Image.open(image_path_green)
 orange_boat = Image.open(image_path_orange)
 
@@ -45,18 +45,17 @@ def draw_frame(departures):
 
     for stop_id, stop_departures in departures.items():
         if stop_id == 4:
-            # Top-right corner (next ferry at stop 4) - SWAPPED
+            # Top-right corner (next ferry at stop 4) - SWAPPED, move 2 pixels down
             if stop_departures:
                 text = str(stop_departures[0]['minutes_to_next_departure'])
                 bbox = draw.textbbox((0, 0), text, font=font)
                 text_width = bbox[2] - bbox[0]
-                draw.text((matrix.width - text_width - 1, 1), text, font=font, fill=(255, 255, 255))
+                draw.text((matrix.width - text_width - 1, 3), text, font=font, fill=(255, 255, 255))  # Move down 2 pixels
 
-
-            # Top-left corner (following ferry at stop 4) - SWAPPED
+            # Top-left corner (following ferry at stop 4) - SWAPPED, move 2 pixels down
             if len(stop_departures) > 1:
                 text = str(stop_departures[1]['minutes_to_next_departure'])
-                draw.text((1, 1), text, font=font, fill=(255, 255, 255))
+                draw.text((1, 3), text, font=font, fill=(255, 255, 255))  # Move down 2 pixels
 
         elif stop_id == 90:
             # Bottom-right corner (next ferry at stop 90) - SWAPPED
@@ -74,18 +73,20 @@ def draw_frame(departures):
                 text_height = bbox[3] - bbox[1]
                 draw.text((1, matrix.height - text_height - 5), text, font=font, fill=(255, 255, 255))
 
-    # Resize if necessary (optional, but good practice)
-    green_boat.thumbnail((matrix.width, matrix.height), Image.Resampling.LANCZOS)
-    orange_boat.thumbnail((matrix.width, matrix.height), Image.Resampling.LANCZOS)
+    
+    # Resize using resize() for proper image scaling
+    green_boat_resized = green_boat.resize((matrix.width, matrix.height), Image.Resampling.LANCZOS)
+    orange_boat_resized = orange_boat.resize((matrix.width, matrix.height), Image.Resampling.LANCZOS)
 
-    # Define the positions for the boats
-    top_row_position = (int((matrix.width - green_boat.width) / 2), 0)  # Centered on top row
-    bottom_row_position = (int((matrix.width - orange_boat.width) / 2), matrix.height - orange_boat.height)  # Centered on bottom row
 
-    # Paste the boats onto the canvas
-    image.paste(green_boat, top_row_position)
-    image.paste(orange_boat, bottom_row_position)
-        
+    # Put green_boat on the top row, move it 2 pixels down
+    green_boat_position = (int((matrix.width - green_boat.width) / 2), 2)
+    image.paste(green_boat, green_boat_position)
+
+    # Paste the orange_boat on the bottom row, move it 2 pixels up
+    orange_boat_position = (int((matrix.width - orange_boat.width) / 2), matrix.height - orange_boat.height - 2)
+    image.paste(orange_boat, orange_boat_position)
+    
     matrix.SetImage(image)
 
 def cleanup():
