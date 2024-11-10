@@ -10,18 +10,10 @@ from PIL import Image, ImageDraw, ImageFont
 from ferry import get_combined_departures, download_gtfs_data
 
 # Define the path to the image
-image_path = '/home/tloizel/code/ferry-led/images/red.png'
-
-try:
-    # Open the image file
-    img = Image.open(image_path)
-    #img.show()  # Show the image using the default image viewer
-    # Use the absolute path to the image file
-    print(f"Trying to open: {image_path}")
-    logo = Image.open(image_path)
-    print(f"Image '{image_path}' opened successfully.")
-except Exception as e:
-    print(f"An error occurred: {e}")
+image_path_green = '/home/tloizel/code/ferry-led/images/blue.png'
+image_path_orange = '/home/tloizel/code/ferry-led/images/red.png'
+green_boat = Image.open(image_path_green)
+orange_boat = Image.open(image_path_orange)
 
 # Set up a temporary directory
 temp_dir = tempfile.mkdtemp(prefix='ferry_')
@@ -65,8 +57,6 @@ def draw_frame(departures):
                 text = str(stop_departures[1]['minutes_to_next_departure'])
                 draw.text((1, 1), text, font=font, fill=(255, 255, 255))
 
-
-
         elif stop_id == 90:
             # Bottom-right corner (next ferry at stop 90) - SWAPPED
             if stop_departures:
@@ -83,20 +73,18 @@ def draw_frame(departures):
                 text_height = bbox[3] - bbox[1]
                 draw.text((1, matrix.height - text_height - 5), text, font=font, fill=(255, 255, 255))
 
-    try:
-        # Resize if necessary (optional, but good practice)
-        logo.thumbnail((matrix.width, matrix.height), Image.Resampling.LANCZOS)
+    # Resize if necessary (optional, but good practice)
+    green_boat.thumbnail((matrix.width, matrix.height), Image.Resampling.LANCZOS)
+    orange_boat.thumbnail((matrix.width, matrix.height), Image.Resampling.LANCZOS)
 
-        # Calculate center position
-        x = (matrix.width - logo.width) // 2
-        y = (matrix.height - logo.height) // 2
+    # Define the positions for the boats
+    top_row_position = (int((matrix.width - green_boat.width) / 2), 0)  # Centered on top row
+    bottom_row_position = (int((matrix.width - orange_boat.width) / 2), matrix.height - orange_boat.height)  # Centered on bottom row
 
-        # Paste the image onto the canvas, centered
-        image.paste(logo, (x, y))
-
-    except FileNotFoundError:
-        print(f"Error: Image file not found at {image_path}")
-
+    # Paste the boats onto the canvas
+    image.paste(green_boat, top_row_position)
+    image.paste(orange_boat, bottom_row_position)
+        
     matrix.SetImage(image)
 
 def cleanup():
