@@ -15,6 +15,9 @@ image_path_orange = '/home/tloizel/code/ferry-led/images/red.png'
 green_boat = Image.open(image_path_green)
 orange_boat = Image.open(image_path_orange)
 
+# Load the DejaVu Sans Mono font
+font = ImageFont.truetype("/home/tloizel/code/ferry-led/fonts/Square-Dot-Matrix.ttf", 8)
+
 # Set up a temporary directory
 temp_dir = tempfile.mkdtemp(prefix='ferry_')
 os.environ['FERRY_TEMP_DIR'] = temp_dir
@@ -27,7 +30,7 @@ options.chain_length = 1
 options.parallel = 1
 options.hardware_mapping = 'adafruit-hat'
 options.gpio_slowdown = 4
-options.brightness = 50
+options.brightness = 85
 
 # Create the matrix
 matrix = RGBMatrix(options = options)
@@ -36,8 +39,6 @@ matrix = RGBMatrix(options = options)
 image = Image.new("RGB", (matrix.width, matrix.height))
 draw = ImageDraw.Draw(image)
 
-# Load a smaller font
-font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 8)
 
 def draw_frame(departures):
     draw.rectangle((0, 0, matrix.width, matrix.height), fill=(0, 0, 0))
