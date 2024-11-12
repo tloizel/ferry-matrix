@@ -16,7 +16,8 @@ green_boat = Image.open(image_path_green)
 orange_boat = Image.open(image_path_orange)
 
 # Load the DejaVu Sans Mono font
-font = ImageFont.truetype("/home/tloizel/code/ferry-led/fonts/Square-Dot-Matrix.ttf", 8)
+#font = ImageFont.truetype("/home/tloizel/code/ferry-led/fonts/Square-Dot-Matrix.ttf", 8)
+font = ImageFont.load_default()
 
 # Set up a temporary directory
 temp_dir = tempfile.mkdtemp(prefix='ferry_')
@@ -45,46 +46,46 @@ def draw_frame(departures):
 
     for stop_id, stop_departures in departures.items():
         if stop_id == 4:
-            # Top-right corner (next ferry at stop 4) - SWAPPED, move 2 pixels down
+            # Display departure times for stop 4
             if stop_departures:
-                text = str(stop_departures[0]['minutes_to_next_departure'])
+                next_departure = stop_departures[0]['minutes_to_next_departure']
+                text = str(next_departure)
                 bbox = draw.textbbox((0, 0), text, font=font)
                 text_width = bbox[2] - bbox[0]
-                draw.text((matrix.width - text_width - 1, 3), text, font=font, fill=(255, 255, 255))  # Move down 2 pixels
+                draw.text((matrix.width - text_width - 1, 4), text, font=font, fill=(255, 255, 255))
 
-            # Top-left corner (following ferry at stop 4) - SWAPPED, move 2 pixels down
+                # Calculate the column position for the green boat based on departure time
+                green_boat_column = min(14 + max(0, 26 - next_departure), matrix.width - green_boat.width)
+                
             if len(stop_departures) > 1:
-                text = str(stop_departures[1]['minutes_to_next_departure'])
-                draw.text((1, 3), text, font=font, fill=(255, 255, 255))  # Move down 2 pixels
+                following_departure = stop_departures[1]['minutes_to_next_departure']
+                draw.text((1, 4), str(following_departure), font=font, fill=(255, 255, 255))
 
         elif stop_id == 90:
-            # Bottom-right corner (next ferry at stop 90) - SWAPPED
+            # Display departure times for stop 90
             if stop_departures:
-                text = str(stop_departures[0]['minutes_to_next_departure'])
+                next_departure = stop_departures[0]['minutes_to_next_departure']
+                text = str(next_departure)
                 bbox = draw.textbbox((0, 0), text, font=font)
                 text_width = bbox[2] - bbox[0]
                 text_height = bbox[3] - bbox[1]
-                draw.text((matrix.width - text_width - 1, matrix.height - text_height - 5), text, font=font, fill=(255, 255, 255))
+                draw.text((matrix.width - text_width - 1, matrix.height - text_height - 3), text, font=font, fill=(255, 255, 255))
 
-            # Bottom-left corner (following ferry at stop 90) - SWAPPED
+                # Calculate the column position for the orange boat based on departure time
+                orange_boat_column = min(14 + max(0, 26 - next_departure), matrix.width - orange_boat.width)
+
             if len(stop_departures) > 1:
-                text = str(stop_departures[1]['minutes_to_next_departure'])
-                bbox = draw.textbbox((0, 0), text, font=font)
+                following_departure = stop_departures[1]['minutes_to_next_departure']
+                bbox = draw.textbbox((0, 0), str(following_departure), font=font)
                 text_height = bbox[3] - bbox[1]
-                draw.text((1, matrix.height - text_height - 5), text, font=font, fill=(255, 255, 255))
+                draw.text((1, matrix.height - text_height - 3), str(following_departure), font=font, fill=(255, 255, 255))
 
-    
-    # Resize using resize() for proper image scaling
-    green_boat_resized = green_boat.resize((matrix.width, matrix.height), Image.Resampling.LANCZOS)
-    orange_boat_resized = orange_boat.resize((matrix.width, matrix.height), Image.Resampling.LANCZOS)
-
-
-    # Put green_boat on the top row, move it 2 pixels down
-    green_boat_position = (int((matrix.width - green_boat.width) / 2), 2)
+    # Position the green boat based on the calculated column
+    green_boat_position = (green_boat_column, 3)
     image.paste(green_boat, green_boat_position)
 
-    # Paste the orange_boat on the bottom row, move it 2 pixels up
-    orange_boat_position = (int((matrix.width - orange_boat.width) / 2), matrix.height - orange_boat.height - 2)
+    # Position the orange boat based on the calculated column
+    orange_boat_position = (orange_boat_column, matrix.height - orange_boat.height - 3)
     image.paste(orange_boat, orange_boat_position)
     
     matrix.SetImage(image)
