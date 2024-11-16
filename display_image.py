@@ -55,7 +55,7 @@ def draw_frame(departures):
                 draw.text((matrix.width - text_width - 1, 4), text, font=font, fill=(255, 255, 255))
 
                 # Calculate the column position for the green boat based on departure time
-                green_boat_column = min(14 + max(0, 26 - next_departure), matrix.width - green_boat.width)
+                green_boat_column = min(14 + max(0, 30 - next_departure), matrix.width - green_boat.width)
             
             else:
                 # Center the green boat if no departures are available
@@ -76,7 +76,7 @@ def draw_frame(departures):
                 draw.text((matrix.width - text_width - 1, matrix.height - text_height - 3), text, font=font, fill=(255, 255, 255))
 
                 # Calculate the column position for the orange boat based on departure time
-                orange_boat_column = min(14 + max(0, 26 - next_departure), matrix.width - orange_boat.width)
+                orange_boat_column = min(14 + max(0, 30 - next_departure), matrix.width - orange_boat.width)
                 
             else:
                 # Center the orange boat if no departures are available

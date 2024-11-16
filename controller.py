@@ -52,5 +52,5 @@ while True:
     
     # Wait for 60 seconds before checking again
     print("Waiting for next check...")
-    time.sleep(60)
+    time.sleep(120)
     print("Checked.")
