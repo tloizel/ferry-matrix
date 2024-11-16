@@ -2,8 +2,14 @@ import sys
 import os
 import time
 import random
+import argparse
 from rgbmatrix import RGBMatrix, RGBMatrixOptions
 from PIL import Image, ImageDraw, ImageFont
+
+# Argument parser to accept text input
+parser = argparse.ArgumentParser(description="Scroll text on LED matrix")
+parser.add_argument("--text", type=str, default="Welcome Caro & Alex", help="Text to scroll on the matrix")
+args = parser.parse_args()
 
 # Set up the RGB matrix options
 options = RGBMatrixOptions()
@@ -11,7 +17,7 @@ options.rows = 32
 options.cols = 64
 options.chain_length = 1
 options.parallel = 1
-options.hardware_mapping = 'adafruit-hat'  # Use 'adafruit-hat' if you're using Adafruit HAT
+options.hardware_mapping = 'adafruit-hat'
 
 # Initialize the matrix with the given options
 matrix = RGBMatrix(options=options)
@@ -19,8 +25,8 @@ matrix = RGBMatrix(options=options)
 # Use the default font
 font = ImageFont.load_default()
 
-# Text to display
-text = "Hello, World!   "  # Add spaces for smooth wrap-around
+# Text to display with added spaces for smooth wrap-around
+text = args.text + "    "  # Add spaces here for continuous scrolling
 
 # Calculate text width and height for scrolling
 text_width, text_height = font.getsize(text)
@@ -34,10 +40,10 @@ draw = ImageDraw.Draw(image)
 # Start the infinite scroll
 offset_x = 0  # Initial horizontal offset
 
-# List to store colors for each "Hello, World!" instance on screen
+# List to store colors for each instance of text on screen
 colors = [
-    (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)),  # Initial color for the first instance
-    (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))   # Initial color for the second instance
+    (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)),
+    (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 ]
 
 while True:
@@ -49,12 +55,12 @@ while True:
     draw.text((offset_x + text_width, (matrix.height - text_height) // 2), text, font=font, fill=colors[1])
 
     # Scroll the text by adjusting the offset
-    offset_x -= 1  # Move left by 1 pixel
+    offset_x -= 1
 
     # When the first instance scrolls out, reset offset and shift colors
     if offset_x < -text_width:
         offset_x = 0
-        # Shift the colors: the second instance becomes the first, and a new color is generated for the next
+        # Shift colors: the second instance becomes the first, and a new color is generated
         colors[0] = colors[1]
         colors[1] = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
@@ -62,4 +68,4 @@ while True:
     cropped_image = image.crop((0, 0, matrix.width, matrix.height))
     matrix.SetImage(cropped_image)
 
-    time.sleep(0.03)  # Control the scroll speed
+    time.sleep(0.03)
