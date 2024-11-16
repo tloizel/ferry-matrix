@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 # Argument parser to accept text input
 parser = argparse.ArgumentParser(description="Scroll text on LED matrix")
-parser.add_argument("--text", type=str, default="Welcome Caro & Alex", help="Text to scroll on the matrix")
+parser.add_argument("--text", type=str, default="Welcome to NY", help="Text to scroll on the matrix")
 args = parser.parse_args()
 
 # Set up the RGB matrix options
@@ -29,7 +29,10 @@ font = ImageFont.load_default()
 text = args.text + "    "  # Add spaces here for continuous scrolling
 
 # Calculate text width and height for scrolling
-text_width, text_height = font.getsize(text)
+bbox = font.getbbox(text)  # Get bounding box for the text
+text_width = bbox[2] - bbox[0]  # Width is the difference between right and left
+text_height = bbox[3] - bbox[1]  # Height is the difference between bottom and top
+
 image_width = text_width * 2  # Double width to allow wrap-around
 image_height = matrix.height
 
