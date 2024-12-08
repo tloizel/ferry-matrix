@@ -44,58 +44,69 @@ draw = ImageDraw.Draw(image)
 def draw_frame(departures):
     draw.rectangle((0, 0, matrix.width, matrix.height), fill=(0, 0, 0))
 
-    for stop_id, stop_departures in departures.items():
-        if stop_id == 4:
-            # Display departure times for stop 4
-            if stop_departures:
-                next_departure = stop_departures[0]['minutes_to_next_departure']
-                text = str(next_departure)
-                bbox = draw.textbbox((0, 0), text, font=font)
-                text_width = bbox[2] - bbox[0]
-                draw.text((matrix.width - text_width - 1, 4), text, font=font, fill=(255, 255, 255))
+    if not departures or all(not d for d in departures.values()):
+        # No data available, center the boats
+        green_boat_position = ((matrix.width - green_boat.width) // 2, 3)
+        orange_boat_position = ((matrix.width - orange_boat.width) // 2, matrix.height - orange_boat.height - 3)
+        
+        # Paste boats in the center positions
+        image.paste(green_boat, green_boat_position)
+        image.paste(orange_boat, orange_boat_position)
+    else:
+        # Normal rendering logic
+        for stop_id, stop_departures in departures.items():
+            if stop_id == 4:
+                # Display departure times for stop 4
+                if stop_departures:
+                    next_departure = stop_departures[0]['minutes_to_next_departure']
+                    text = str(next_departure)
+                    bbox = draw.textbbox((0, 0), text, font=font)
+                    text_width = bbox[2] - bbox[0]
+                    draw.text((matrix.width - text_width - 1, 4), text, font=font, fill=(255, 255, 255))
 
-                # Calculate the column position for the green boat based on departure time
-                green_boat_column = min(14 + max(0, 30 - next_departure), matrix.width - green_boat.width)
-            
-            else:
-                # Center the green boat if no departures are available
-                green_boat_column = (matrix.width - green_boat.width) // 2
+                    # Calculate the column position for the green boat based on departure time
+                    green_boat_column = min(14 + max(0, 30 - next_departure), matrix.width - green_boat.width)
                 
-            if len(stop_departures) > 1:
-                following_departure = stop_departures[1]['minutes_to_next_departure']
-                draw.text((1, 4), str(following_departure), font=font, fill=(255, 255, 255))
+                else:
+                    # Center the green boat if no departures are available
+                    green_boat_column = (matrix.width - green_boat.width) // 2
+                    
+                if len(stop_departures) > 1:
+                    following_departure = stop_departures[1]['minutes_to_next_departure']
+                    draw.text((1, 4), str(following_departure), font=font, fill=(255, 255, 255))
 
-        elif stop_id == 90:
-            # Display departure times for stop 90
-            if stop_departures:
-                next_departure = stop_departures[0]['minutes_to_next_departure']
-                text = str(next_departure)
-                bbox = draw.textbbox((0, 0), text, font=font)
-                text_width = bbox[2] - bbox[0]
-                text_height = bbox[3] - bbox[1]
-                draw.text((matrix.width - text_width - 1, matrix.height - text_height - 3), text, font=font, fill=(255, 255, 255))
+            elif stop_id == 90:
+                # Display departure times for stop 90
+                if stop_departures:
+                    next_departure = stop_departures[0]['minutes_to_next_departure']
+                    text = str(next_departure)
+                    bbox = draw.textbbox((0, 0), text, font=font)
+                    text_width = bbox[2] - bbox[0]
+                    text_height = bbox[3] - bbox[1]
+                    draw.text((matrix.width - text_width - 1, matrix.height - text_height - 3), text, font=font, fill=(255, 255, 255))
 
-                # Calculate the column position for the orange boat based on departure time
-                orange_boat_column = min(14 + max(0, 30 - next_departure), matrix.width - orange_boat.width)
-                
-            else:
-                # Center the orange boat if no departures are available
-                orange_boat_column = (matrix.width - orange_boat.width) // 2
-                
-            if len(stop_departures) > 1:
-                following_departure = stop_departures[1]['minutes_to_next_departure']
-                bbox = draw.textbbox((0, 0), str(following_departure), font=font)
-                text_height = bbox[3] - bbox[1]
-                draw.text((1, matrix.height - text_height - 3), str(following_departure), font=font, fill=(255, 255, 255))
+                    # Calculate the column position for the orange boat based on departure time
+                    orange_boat_column = min(14 + max(0, 30 - next_departure), matrix.width - orange_boat.width)
+                    
+                else:
+                    # Center the orange boat if no departures are available
+                    orange_boat_column = (matrix.width - orange_boat.width) // 2
+                    
+                if len(stop_departures) > 1:
+                    following_departure = stop_departures[1]['minutes_to_next_departure']
+                    bbox = draw.textbbox((0, 0), str(following_departure), font=font)
+                    text_height = bbox[3] - bbox[1]
+                    draw.text((1, matrix.height - text_height - 3), str(following_departure), font=font, fill=(255, 255, 255))
 
-    # Position the green boat based on the calculated column
-    green_boat_position = (green_boat_column, 3)
-    image.paste(green_boat, green_boat_position)
+        # Position the green boat based on the calculated column
+        green_boat_position = (green_boat_column, 3)
+        image.paste(green_boat, green_boat_position)
 
-    # Position the orange boat based on the calculated column
-    orange_boat_position = (orange_boat_column, matrix.height - orange_boat.height - 3)
-    image.paste(orange_boat, orange_boat_position)
-    
+        # Position the orange boat based on the calculated column
+        orange_boat_position = (orange_boat_column, matrix.height - orange_boat.height - 3)
+        image.paste(orange_boat, orange_boat_position)
+        pass
+        
     matrix.SetImage(image)
 
 def cleanup():
